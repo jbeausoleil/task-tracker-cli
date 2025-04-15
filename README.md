@@ -17,19 +17,16 @@ The application should run from the command line, accept user actions and inputs
 - Do not use any external libraries or frameworks to build this project.
 - Ensure to handle errors and edge cases gracefully.
 
-**Directory Structure**
-```
-taskcli/
-├── cmd/                   # Commands like add, list, etc.
-│   ├── add.go             # Handles "add" command
-│   ├── list.go            # Handles "list" command
-├── internal/              # Business logic, task management
-│   └── tasks/
-│       └── manager.go     # TaskManager, file I/O, logic
-├── data/                  # (Optional) Data storage like JSON or text files
-│   └── tasks.json
-├── go.mod
-├── go.sum
-└── main.go                # Parses CLI args and dispatches commands
-```
-
+task-tracker-cli/
+├── cmd/               # CLI interface layer: parses args, routes commands
+│   ├── root.go        # Entry point and command dispatcher
+│   ├── task.go        # CLI handlers for task-related commands (e.g., add, list)
+│   └── version.go     # CLI version command
+│
+├── internal/          # Business logic and domain-specific code (not CLI-aware)
+│   └── task/          
+│       ├── model.go   # Defines the Task struct and related data models
+│       ├── service.go # High-level logic and operations for tasks
+│       └── store.go   # In-memory or file-based task storage
+│
+├── main.go            # Application entry point, delegates to cmd.Execute()
