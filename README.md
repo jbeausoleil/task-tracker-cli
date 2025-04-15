@@ -17,6 +17,7 @@ The application should run from the command line, accept user actions and inputs
 - Do not use any external libraries or frameworks to build this project.
 - Ensure to handle errors and edge cases gracefully.
 
+```
 task-tracker-cli/
 ├── cmd/               # CLI interface layer: parses args, routes commands
 │   ├── root.go        # Entry point and command dispatcher
@@ -30,3 +31,4 @@ task-tracker-cli/
 │       └── store.go   # In-memory or file-based task storage
 │
 ├── main.go            # Application entry point, delegates to cmd.Execute()
+```
