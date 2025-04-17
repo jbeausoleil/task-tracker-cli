@@ -98,6 +98,7 @@ junit*.properties
 # user specific
 ideas.txt
 db/*
+!db/.gitkeep
 
 ### PyCharm+iml template
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
