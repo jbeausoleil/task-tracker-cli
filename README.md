@@ -2,7 +2,7 @@
 
 The application should run from the command line, accept user actions and inputs as arguments, and store the tasks in a JSON file. The user should be able to:
 
-- Add, Update, and Delete tasks
+- AddTask, Update, and Delete tasks
 - Mark a task as in progress or done
 - List all tasks
 - List all tasks that are done
@@ -17,6 +17,7 @@ The application should run from the command line, accept user actions and inputs
 - Do not use any external libraries or frameworks to build this project.
 - Ensure to handle errors and edge cases gracefully.
 
+**Directory Structure**
 ```
 task-tracker-cli/
 ├── cmd/               # CLI interface layer: parses args, routes commands
