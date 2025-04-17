@@ -5,8 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"task-tracker-cli/internal/idgen"
-	"time"
 )
 
 // Status represents the state of a task or process, typically used to track progress or completion stages.
@@ -81,22 +79,10 @@ func NewStore() *Store {
 	}
 }
 
-// AddTask adds a new task with the given description to the store, saves it to a file, and returns the created Task.
-func (s *Store) AddTask(desc string) Task {
-	uuid := idgen.GenerateID()
-	task := Task{
-		Id:          uuid,
-		Description: desc,
-		Status:      StatusTodo,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
-	}
+// AppendTask adds the provided task to the internal tasks slice and returns an error if any issue occurs.
+func (s *Store) AppendTask(task Task) error {
 	s.tasks = append(s.tasks, task)
-	err := s.SaveToFile()
-	if err != nil {
-		panic(err)
-	}
-	return task
+	return s.SaveToFile()
 }
 
 // SaveToFile saves the current tasks in the Store to a file in JSON format with indentation. Returns an error if failed.

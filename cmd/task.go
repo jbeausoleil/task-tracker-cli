@@ -24,7 +24,11 @@ func runTask(args []string) {
 		}
 		fmt.Println(args[1:])
 		description := strings.Join(args[1:], " ")
-		taskCreated := svc.CreateTask(description)
+		taskCreated, err := svc.CreateTask(description)
+		if err != nil {
+			fmt.Println("Failed to create task: ", err)
+			return
+		}
 		fmt.Println("Added: ", taskCreated)
 	default:
 		fmt.Println("Unknown todo subcommand")
