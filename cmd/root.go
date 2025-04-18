@@ -10,8 +10,8 @@ import (
 // It exits the program with an error message if no valid subcommand is provided.
 func Execute() {
 	if len(os.Args) < 2 {
-		fmt.Println("expected a subcommand: task | version")
-		os.Exit(1)
+		fmt.Println("expected a subcommand: [task|version]")
+		return
 	}
 	switch os.Args[1] {
 	case "task":

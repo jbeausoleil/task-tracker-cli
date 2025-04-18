@@ -12,7 +12,7 @@ var svc = task.NewService(task.NewStore())
 
 // formatValidFilters returns a formatted, sorted string of valid task filters.
 // Example output: "[done|in-progress|todo]"
-func formatValidFilters(filters map[string]bool) string {
+func formatValidInput(filters map[string]bool) string {
 	var keys []string
 	for key := range filters {
 		keys = append(keys, key)
@@ -23,8 +23,21 @@ func formatValidFilters(filters map[string]bool) string {
 
 // runTask processes task-related subcommands such as "add", "list", or "delete" for the CLI application.
 func runTask(args []string) {
+	validActions := map[string]bool{
+		"add":    true,
+		"list":   true,
+		"delete": true,
+	}
+
 	if len(args) < 1 {
-		fmt.Println("expected task action: [add|list|delete]")
+		fmt.Println("expected task action:", formatValidInput(validActions))
+		return
+	}
+
+	action := strings.ToLower(strings.TrimSpace(args[0]))
+
+	if !validActions[action] {
+		fmt.Printf("unknown action: %s\nselect from actions: %s\n", action, formatValidInput(validActions))
 		return
 	}
 
@@ -35,7 +48,7 @@ func runTask(args []string) {
 		"in-progress": true,
 	}
 
-	switch args[0] {
+	switch action {
 	case "add":
 		if len(args) < 2 {
 			fmt.Println("Expected a task description: task-tracker-cli task add \"walk the dog\"")
@@ -49,11 +62,11 @@ func runTask(args []string) {
 		}
 		fmt.Println("Added: ", taskCreated)
 	case "list":
-		filter := ""
+		filter := strings.ToLower(strings.TrimSpace(""))
 		if len(args) >= 2 {
 			// Validate the provided filter against validFilters.
 			if !validFilters[args[1]] {
-				fmt.Println("Expected task list action", formatValidFilters(validFilters))
+				fmt.Println("expected task list action:", formatValidInput(validFilters))
 				return
 			}
 			filter = args[1]
@@ -66,12 +79,12 @@ func runTask(args []string) {
 		}
 
 		// Print table header
-		fmt.Printf("%-40s %-17s %-50s\n", "ID", "STATUS", "DESCRIPTION")
+		fmt.Printf("%-15s %-20s %-50s\n", "ID", "STATUS", "DESCRIPTION")
 		fmt.Println(strings.Repeat("-", 75))
 
 		// Print each task
 		for _, task := range tasks {
-			fmt.Printf("%-40s %-17s %-50s\n", task.Id, task.Status, task.Description)
+			fmt.Printf("%-15s %-20s %-50s\n", task.Id, task.Status, task.Description)
 		}
 	default:
 		fmt.Println("Unknown todo subcommand")

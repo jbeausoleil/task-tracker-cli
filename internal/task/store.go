@@ -41,7 +41,8 @@ func fileExists(path string) bool {
 // createEmptyTaskFile creates a new JSON file at the specified path and populates it with an empty list of tasks.
 // It panics if the file cannot be created or written to.
 func createEmptyTaskFile(path string) {
-	emptyData, _ := json.MarshalIndent([]Task{}, "", "  ")
+	var wrapper taskWrapper
+	emptyData, _ := json.MarshalIndent(wrapper, "", "  ")
 	if err := os.WriteFile(path, emptyData, 0644); err != nil {
 		panic(fmt.Errorf("failed to create tasks.json file: %w", err))
 	}
