@@ -47,19 +47,6 @@ func createEmptyTaskFile(path string) {
 	}
 }
 
-// loadTasksFromFile reads tasks from a JSON file specified by the given path and returns a slice of Task or an error.
-func loadTasksFromFile(path string) ([]Task, error) {
-	data, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-	var wrapper taskWrapper
-	if err := json.Unmarshal(data, &wrapper); err != nil {
-		return nil, err
-	}
-	return wrapper.Tasks, nil
-}
-
 // NewStore initializes and returns a new Store instance with tasks loaded from a JSON file or an empty file if not present.
 func NewStore() *Store {
 	path := "db/task.json"
@@ -67,7 +54,7 @@ func NewStore() *Store {
 		createEmptyTaskFile(path)
 	}
 
-	tasks, err := loadTasksFromFile(path)
+	tasks, err := LoadTasksFromFile(path)
 	if err != nil {
 		fmt.Println("failed to load tasks from file: ", err)
 		os.Exit(1)
@@ -93,4 +80,17 @@ func (s *Store) SaveToFile() error {
 		return err
 	}
 	return os.WriteFile(s.filePath, data, 0644)
+}
+
+// LoadTasksFromFile reads tasks from a JSON file specified by the given path and returns a slice of Task or an error.
+func LoadTasksFromFile(path string) ([]Task, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var wrapper taskWrapper
+	if err := json.Unmarshal(data, &wrapper); err != nil {
+		return nil, err
+	}
+	return wrapper.Tasks, nil
 }

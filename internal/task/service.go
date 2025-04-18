@@ -33,3 +33,13 @@ func (s *Service) CreateTask(desc string) (Task, error) {
 	}
 	return task, nil
 }
+
+func (s *Service) ListTasks(filter string) []Task {
+	var result []Task
+	for _, task := range s.store.tasks {
+		if filter == "" || string(task.Status) == filter {
+			result = append(result, task)
+		}
+	}
+	return result
+}
