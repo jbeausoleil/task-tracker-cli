@@ -7,30 +7,32 @@ import (
 	"os"
 )
 
-// Status represents the state of a task or process, typically used to track progress or completion stages.
+// Status represents the state of a task, used to track its progress or completion stage.
 type Status string
 
-// StatusTodo indicates a task is yet to be started.
-// StatusInProgress indicates a task is currently being worked on.
-// StatusCompleted indicates a task has been finished.
 const (
-	StatusTodo       Status = "todo"
+	// StatusTodo indicates the task is yet to be started.
+	StatusTodo Status = "todo"
+
+	// StatusInProgress indicates the task is currently being worked on.
 	StatusInProgress Status = "in_progress"
-	StatusCompleted  Status = "completed"
+
+	// StatusCompleted indicates the task has been finished.
+	StatusCompleted Status = "completed"
 )
 
-// taskWrapper is a container type that wraps a list of Task objects for serialization or data manipulation purposes.
+// taskWrapper is a container for serializing and deserializing a list of tasks.
 type taskWrapper struct {
 	Tasks []Task `json:"tasks"`
 }
 
-// Store represents a data structure for managing Task items and their persistence to a file.
+// Store manages a collection of tasks and their persistence to a file.
 type Store struct {
 	tasks    []Task
 	filePath string
 }
 
-// fileExists checks if the specified file path exists and returns true if it exists, or false otherwise.
+// fileExists returns true if a file exists at the given path.
 func fileExists(path string) bool {
 	if _, err := os.Stat(path); errors.Is(err, os.ErrNotExist) {
 		return false
@@ -38,26 +40,31 @@ func fileExists(path string) bool {
 	return true
 }
 
-// createEmptyTaskFile creates a new JSON file at the specified path and populates it with an empty list of tasks.
-// It panics if the file cannot be created or written to.
+// createEmptyTaskFile creates a new JSON file at the specified path with an empty list of tasks.
+// It panics if the file cannot be created or written.
 func createEmptyTaskFile(path string) {
 	var wrapper taskWrapper
-	emptyData, _ := json.MarshalIndent(wrapper, "", "  ")
-	if err := os.WriteFile(path, emptyData, 0644); err != nil {
-		panic(fmt.Errorf("failed to create tasks.json file: %w", err))
+	data, err := json.MarshalIndent(wrapper, "", "  ")
+	if err != nil {
+		panic(fmt.Errorf("failed to marshal empty task wrapper: %w", err))
+	}
+	if err := os.WriteFile(path, data, 0644); err != nil {
+		panic(fmt.Errorf("failed to create tasks file: %w", err))
 	}
 }
 
-// NewStore initializes and returns a new Store instance with tasks loaded from a JSON file or an empty file if not present.
+// NewStore initializes and returns a new Store instance.
+// It loads existing tasks from a JSON file, creating an empty file if it does not exist.
 func NewStore() *Store {
-	path := "db/task.json"
-	if ok := fileExists(path); !ok {
+	const path = "db/task.json"
+
+	if !fileExists(path) {
 		createEmptyTaskFile(path)
 	}
 
 	tasks, err := LoadTasksFromFile(path)
 	if err != nil {
-		fmt.Println("failed to load tasks from file: ", err)
+		fmt.Println("failed to load tasks from file:", err)
 		os.Exit(1)
 	}
 
@@ -67,31 +74,60 @@ func NewStore() *Store {
 	}
 }
 
-// AppendTask adds the provided task to the internal tasks slice and returns an error if any issue occurs.
+// AppendTask adds a new task to the store and immediately saves the updated list to the file.
 func (s *Store) AppendTask(task Task) error {
 	s.tasks = append(s.tasks, task)
 	return s.SaveToFile()
 }
 
-// SaveToFile saves the current tasks in the Store to a file in JSON format with indentation. Returns an error if failed.
+// SaveToFile writes the current tasks to the store's file in JSON format.
+// It overwrites the existing file contents.
 func (s *Store) SaveToFile() error {
 	wrapped := taskWrapper{Tasks: s.tasks}
 	data, err := json.MarshalIndent(wrapped, "", "  ")
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal tasks: %w", err)
 	}
 	return os.WriteFile(s.filePath, data, 0644)
 }
 
-// LoadTasksFromFile reads tasks from a JSON file specified by the given path and returns a slice of Task or an error.
+// LoadTasksFromFile reads tasks from the given JSON file path and returns the list of tasks.
+// It returns an error if the file cannot be read or parsed.
 func LoadTasksFromFile(path string) ([]Task, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read file: %w", err)
 	}
+
 	var wrapper taskWrapper
 	if err := json.Unmarshal(data, &wrapper); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal tasks: %w", err)
 	}
+
 	return wrapper.Tasks, nil
+}
+
+// DeleteTaskById removes a task from the store by its ID.
+// It updates the in-memory task list but does not automatically save to file.
+// Returns an error if the task ID does not exist.
+func (s *Store) DeleteTaskById(id string) error {
+	found := false
+	tasks := s.tasks
+
+	i := 0
+	for _, task := range tasks {
+		if task.Id == id {
+			found = true
+			continue
+		}
+		tasks[i] = task
+		i++
+	}
+
+	if !found {
+		return fmt.Errorf("task %s not found", id)
+	}
+
+	s.tasks = tasks[:i]
+	return nil
 }
