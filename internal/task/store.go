@@ -131,3 +131,23 @@ func (s *Store) DeleteTaskById(id string) error {
 	s.tasks = tasks[:i]
 	return nil
 }
+
+func (s *Store) GetTaskById(id string) (Task, error) {
+	for _, task := range s.tasks {
+		if task.Id == id {
+			return task, nil
+		}
+	}
+	return Task{}, fmt.Errorf("task %s not found", id)
+}
+
+// UpdateTask replaces the existing task with the updated one by ID.
+func (s *Store) UpdateTask(updated Task) error {
+	for i, task := range s.tasks {
+		if task.Id == updated.Id {
+			s.tasks[i] = updated
+			return s.SaveToFile()
+		}
+	}
+	return fmt.Errorf("task %s not found", updated.Id)
+}

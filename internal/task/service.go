@@ -42,7 +42,7 @@ func (s *Service) CreateTask(desc string) (Task, error) {
 func (s *Service) ListTasks(filter string) []Task {
 	var result []Task
 	for _, task := range s.store.tasks {
-		if filter == "" || string(task.Status) == filter {
+		if filter == "" || string(task.Status) == filter || task.Id == filter {
 			result = append(result, task)
 		}
 	}
@@ -61,4 +61,29 @@ func (s *Service) DeleteTask(id string) error {
 	}
 
 	return nil
+}
+
+// UpdateTaskDescription updates a task's description by ID.
+func (s *Service) UpdateTaskDescription(id, desc string) error {
+	task, err := s.store.GetTaskById(id)
+	if err != nil {
+		return fmt.Errorf("failed to get task by id: %w", err)
+	}
+
+	task.Description = desc
+	task.UpdatedAt = time.Now()
+
+	return s.store.UpdateTask(task)
+}
+
+// UpdateTaskStatus updates a task's status by ID
+func (s *Service) UpdateTaskStatus(id string, status Status) error {
+	task, err := s.store.GetTaskById(id)
+	if err != nil {
+		return fmt.Errorf("failed to get task by id: %w", err)
+	}
+	task.Status = status
+	task.UpdatedAt = time.Now()
+
+	return s.store.UpdateTask(task)
 }
