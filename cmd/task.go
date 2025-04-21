@@ -3,10 +3,10 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"github.com/jbeausoleil/task-tracker-cli/internal/task"
 	"os"
 	"sort"
 	"strings"
-	"task-tracker-cli/internal/task"
 )
 
 // svc is the initialized task service used by the CLI to manage and persist tasks.

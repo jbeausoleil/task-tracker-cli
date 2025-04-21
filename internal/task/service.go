@@ -2,7 +2,7 @@ package task
 
 import (
 	"fmt"
-	"task-tracker-cli/internal/idgen"
+	"github.com/jbeausoleil/task-tracker-cli/internal/idgen"
 	"time"
 )
 
